@@ -1,5 +1,5 @@
 <template>
-  <div id="map" style="height: 100vh; width: 100%;">
+  <div id="map" style="height: 100vh; width: 100%">
     <button class="form-button" @click="showForm = true">Add Polygon</button>
     <FormComponent :visible="showForm" @close="showForm = false" />
   </div>
@@ -14,7 +14,7 @@ import FormComponent from './FormComponent.vue';
 export default {
   name: 'MapView',
   components: {
-    FormComponent
+    FormComponent,
   },
   setup() {
     const map = ref(null);
@@ -24,12 +24,13 @@ export default {
       map.value = L.map('map').setView([31.99735, -102.07791], 10);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(map.value);
     });
 
     return { map, showForm };
-  }
+  },
 };
 </script>
 
@@ -39,7 +40,6 @@ export default {
   width: 100%;
   position: relative;
   z-index: 0;
-
 }
 
 .form-button {
