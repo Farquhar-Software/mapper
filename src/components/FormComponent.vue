@@ -1,3 +1,5 @@
+
+
 <template>
   <div v-if="visible" class="form-container">
     <div class="form-overlay" @click="closeForm"></div>
@@ -57,7 +59,11 @@
 </template>
 
 <script>
+
+
+import { shape } from '@/shape';
 import { ref } from 'vue';
+import { usePolygonStore } from '../stores/polygonStore.js'
 
 export default {
   name: 'FormComponent',
@@ -70,6 +76,7 @@ export default {
   setup(props, { emit }) {
     const lat = ref('');
     const long = ref('');
+    const polygonStore = usePolygonStore();
     const bearings = ref([
       { direction1: 'N', degrees: 0, minutes: 0, seconds: 0, direction2: 'E', distance: 0, unit: '' }
     ]);
@@ -102,6 +109,9 @@ export default {
         }))
       };
       console.log(formData);
+      
+      const polygonCoordinates = shape(formData)
+      polygonStore.setPolygonData(polygonCoordinates);
       submissionMessage.value = 'Form submitted successfully!';
       closeForm();
     };
