@@ -6,10 +6,11 @@
 </template>
 
 <script>
-import { onMounted, ref } from 'vue';
+import { onMounted, watch, ref } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import FormComponent from './FormComponent.vue';
+import {usePolygonStore} from '../stores/polygonStore.js'
 
 export default {
   name: 'MapView',
@@ -19,6 +20,7 @@ export default {
   setup() {
     const map = ref(null);
     const showForm = ref(false);
+    const polygonStore = usePolygonStore();
 
     onMounted(() => {
       map.value = L.map('map').setView([31.99735, -102.07791], 10);
@@ -26,10 +28,25 @@ export default {
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(map.value);
+    }),
+
+    watch(() => polygonStore.polygonData,
+      (newPolygonData) => {
+        if (newPolygonData) {
+          addPolygonToMap(newPolygonData);
+        }
     });
 
+    const addPolygonToMap = (polygonData) => {
+      if (map.value) {
+        const polygon = L.polygon(polygonData.coordinates, { color: 'red' }).addTo(map.value);
+        map.value.fitBounds(polygon.getBounds());
+      }
+    };
+
     return { map, showForm };
-  }
+  },
+
 };
 </script>
 
