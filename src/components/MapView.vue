@@ -1,7 +1,11 @@
 <template>
   <div id="map" style="height: 100vh; width: 100%">
     <button class="form-button" @click="showForm = true">Add Polygon</button>
-    <FormComponent :visible="showForm" @close="showForm = false" />
+    <FormComponent
+      :visible="showForm"
+      @close="showForm = false"
+      @geojson="addGeoJSONToMap"
+    />
   </div>
 </template>
 
@@ -10,6 +14,17 @@ import { onMounted, ref } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import FormComponent from './FormComponent.vue';
+
+import markerIcon from '../../public/images/marker-icon.png';
+import markerIcon2x from '../../public/images/marker-icon-2x.png';
+import markerShadow from '../../public/images/marker-shadow.png';
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
 
 export default {
   name: 'MapView',
@@ -21,15 +36,20 @@ export default {
     const showForm = ref(false);
 
     onMounted(() => {
-      map.value = L.map('map').setView([31.99735, -102.07791], 10);
+      map.value = L.map('map').setView(
+        [32.71180328837194, -94.121577724154],
+        13
+      );
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution:
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(map.value);
     });
-
-    return { map, showForm };
+    const addGeoJSONToMap = (geojson) => {
+      L.geoJSON(geojson).addTo(map.value);
+    };
+    return { map, showForm, addGeoJSONToMap };
   },
 };
 </script>

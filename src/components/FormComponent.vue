@@ -2,7 +2,7 @@
   <div v-if="visible" class="form-container">
     <div class="form-overlay" @click="closeForm"></div>
     <div class="form-content">
-      <h2>Form Title</h2>
+      <h2>Direction and Distance Input</h2>
       <form @submit.prevent="submitForm">
         <div>
           <label for="latitudeInput">Latitude</label>
@@ -13,7 +13,7 @@
           <input type="text" id="longitudeInput" v-model="longitudeInput" />
         </div>
         <div>
-          <label for="distanceInput">Distance:</label>
+          <label for="distanceInput">Distance</label>
           <input type="text" id="distanceInput" v-model="distanceInput" />
         </div>
         <div>
@@ -21,10 +21,9 @@
           <input type="text" id="unitInput" v-model="unitInput" />
         </div>
         <div>
-          <label for="directionInput">Direction</label>
+          <label for="directionInput">Direction (e.g., N90°00'00"W)</label>
           <input type="text" id="directionInput" v-model="directionInput" />
         </div>
-
         <button type="submit">Submit</button>
       </form>
     </div>
@@ -32,9 +31,9 @@
 </template>
 
 <script>
-import { convertDirectionToBearing } from '../utils';
 import * as turf from '@turf/turf';
 import { ref } from 'vue';
+import { convertDirectionToBearing } from '../utils/index';
 
 export default {
   name: 'FormComponent',
@@ -51,16 +50,6 @@ export default {
     const unitInput = ref('');
     const directionInput = ref('');
 
-    // const mockData = {
-    //   direction: 'N',
-    //   degrees: 90,
-    //   minutes: 0,
-    //   seconds: 0,
-    //   cardinal: 'W',
-    //   distance: 889.46,
-    //   unit: 'feet',
-    // };
-
     const closeForm = () => {
       emit('close');
     };
@@ -76,10 +65,29 @@ export default {
       const options = { units: unit };
       const bearing = convertDirectionToBearing(direction);
       const destination = turf.destination(point, distance, bearing, options);
-      console.log(destination);
+
+      const coordinates = destination.geometry.coordinates;
+      const geojson = {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: coordinates,
+        },
+        properties: {},
+      };
+
+      console.log(JSON.stringify(geojson, null, 2));
+      return geojson;
     };
 
     const submitForm = () => {
+      // const formData = {
+      //   latitude: parseFloat(latitudeInput.value),
+      //   longitude: parseFloat(longitudeInput.value),
+      //   distance: parseFloat(distanceInput.value),
+      //   unit: unitInput.value,
+      //   direction: parseDirection(directionInput.value),
+      // };
       const formDataMock = {
         latitude: 32.71180328837194,
         longitude: -94.121577724154,
@@ -92,14 +100,8 @@ export default {
           cardinal: 'W',
         },
       };
-      // const formData = {
-      //   latitude: latitudeInput.value,
-      //   longitude: longitudeInput.value,
-      //   distance: Number(distanceInput.value),
-      //   unit: unitInput.value,
-      //   direction: directionInput.value,
-      // };
-      convertToGeoJSON(formDataMock);
+      const geojson = convertToGeoJSON(formDataMock);
+      emit('geojson', geojson);
       closeForm();
     };
 
