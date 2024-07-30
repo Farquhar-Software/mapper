@@ -39,7 +39,6 @@ export default {
   width: 100%;
   position: relative;
   z-index: 0;
-
 }
 
 .form-button {
